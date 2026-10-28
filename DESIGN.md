@@ -4,7 +4,7 @@ Atlas editorial imersivo, de leitura e exploração. Papel quente, tinta escura,
 
 Primeira tela: título editorial enorme à esquerda e fotografia costeira à direita, faixa gráfica vermelha e nota de localização. A navegação leva a território, cultura, história, economia e solidariedade. Variação de composição entre seções, sem repetir uma grade de cartões como estrutura da página.
 
-Movimento: abertura que revela a página como dois painéis; rolagem suave com Lenis, fotografia em paralaxe, máscaras progressivas e sequência narrativa com GSAP ScrollTrigger. Respeitar prefers-reduced-motion; conteúdo legível sem esperar animações. Menu móvel acessível, tabs culturais, exploração de locais e painel de fontes.
+Movimento: abertura que revela a página como dois painéis; rolagem suave com Lenis, fotografia em paralaxe, máscaras progressivas e sequência narrativa com GSAP ScrollTrigger. Respeitar prefers-reduced-motion automaticamente, sem controle manual no site; conteúdo legível sem esperar animações. Navegação móvel pelos atalhos inferiores, sem menu hambúrguer, tabs culturais, exploração de locais e painel de fontes.
 
 ## Evolução: celular e leitura noturna
 

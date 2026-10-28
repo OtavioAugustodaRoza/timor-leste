@@ -1,6 +1,6 @@
 .reading-progress { height: 3px; pointer-events: none; transition: none; }
 .reading-percentage {
-  position: absolute; left: calc(var(--gutter) + 154px); top: calc(50% + 7px);
+  position: absolute; left: calc(var(--gutter) + 165px); top: calc(50% + 7px);
   font-size: 9px; font-weight: 400; font-variant-numeric: tabular-nums;
   line-height: 1; color: var(--muted); pointer-events: none;
 }
@@ -56,13 +56,13 @@
 .weave-journey[data-scroll="false"] .weave-stage { min-height: 720px; }
 
 @media(max-width:1000px) {
-  .reading-percentage { left: calc(var(--gutter) + 124px); top: calc(50% + 7px); font-size: 8px; }
+  .reading-percentage { left: calc(var(--gutter) + 148px); top: calc(50% + 7px); font-size: 8px; }
   .weave-stage { column-gap: 38px; }
   .weave-copy h2 { font-size: 44px; }
   .weave-copy>p { font-size: 15px; }
 }
 @media(max-width:800px) {
-  .reading-percentage { left: calc(var(--gutter) + 126px); top: calc(50% + 7px); font-size: 9px; }
+  .reading-percentage { left: calc(var(--gutter) + 148px); top: calc(50% + 7px); font-size: 9px; }
   .culture-tabs { padding-top: 0; padding-bottom: 0; }
   .weave-stage {
     display: grid; grid-template-columns: 1fr; grid-template-rows: auto minmax(0,1fr) auto;
@@ -85,12 +85,12 @@
   .weave-journey[data-scroll="false"] .weave-frame { height: auto; width: 100%; max-height: 520px; }
 }
 @media(max-width:600px) {
-  .reading-percentage { left: calc(var(--gutter) + 116px); font-size: 8px; }
+  .reading-percentage { left: calc(var(--gutter) + 138px); font-size: 8px; }
   .weave-copy h2 { font-size: clamp(30px,8.2vw,39px); }
   .weave-copy>p { font-size: 14px; }
 }
 @media(max-width:370px) {
-  .reading-percentage { left: calc(var(--gutter) + 107px); font-size: 7px; }
+  .reading-percentage { left: calc(var(--gutter) + 128px); font-size: 7px; }
   .weave-stage { padding-top: 20px; padding-bottom: 14px; gap: 11px; }
   .weave-caption { font-size: 8px; }
 }

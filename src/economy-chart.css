@@ -1,0 +1,44 @@
+.economy-chart { min-width: 0; --chart-accent: var(--red); }
+.chart-heading { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 10px; margin-bottom: 18px; }
+.chart-heading > span:first-child { letter-spacing: .05em; text-transform: uppercase; }
+.chart-heading > span:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chart-metrics { display: flex; padding: 4px; border: 1px solid var(--line); gap: 4px; margin-bottom: 26px; border-radius: 6px; }
+.chart-metrics button { flex: 1; min-height: 44px; padding: 9px 8px; font-size: 12px; color: var(--muted); border-radius: 3px; transition: background .2s, color .2s; }
+.chart-metrics button[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: 0 1px 4px #0000000c; }
+.chart-metrics button:hover { color: var(--red); }
+.chart-top { flex-wrap: wrap; }
+.chart-top > span { white-space: nowrap; }
+.chart-unit { min-height: 30px; line-height: 1.6; font-size: 11px; }
+.chart-comparison { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 11px; min-height: 30px; color: var(--muted); margin-top: 8px; }
+.chart-delta { display: inline-flex; align-items: center; gap: 3px; padding: 4px 7px; border-radius: 3px; font-variant-numeric: tabular-nums; }
+.chart-delta.is-positive { color: #345e43; background: #345e4312; }
+.chart-delta.is-negative { color: #a63b2d; background: #a63b2d12; }
+.gdp-chart { color: var(--chart-accent); display: block; cursor: crosshair; touch-action: pan-y; margin-top: 20px; border-radius: 3px; }
+.chart-grid { stroke: var(--ink); opacity: .1; }
+.chart-zero { opacity: .25; }
+.chart-axis { fill: var(--muted); font-size: 12px; }
+.chart-axis.is-active { fill: var(--chart-accent); font-weight: 600; }
+.chart-line { stroke: var(--chart-accent); }
+.chart-crosshair { stroke: var(--chart-accent); stroke-dasharray: 3 5; opacity: .45; }
+.chart-point { fill: var(--paper-deep); stroke: var(--chart-accent); }
+.chart-point.is-active { fill: var(--chart-accent); }
+.chart-tooltip { pointer-events: none; }
+.chart-tooltip rect { fill: var(--ink); }
+.chart-tooltip text { fill: var(--paper); font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.chart-hint { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 10px; line-height: 1.6; margin-top: 10px; }
+.chart-hint svg { flex-shrink: 0; }
+.chart-years button { min-width: 0; flex: 1; border-radius: 3px; }
+.chart-years button:disabled { opacity: .35; cursor: default; }
+.chart-years button:disabled:hover { border-color: transparent; }
+html[data-theme="dark"] .chart-delta.is-positive { color: #b3d5b4; background: #b3d5b412; }
+html[data-theme="dark"] .chart-delta.is-negative { color: #efa78c; background: #efa78c12; }
+@media (max-width: 600px) {
+  .chart-axis { font-size: 19px; }
+  .chart-tooltip text { font-size: 16px; }
+}
+@media (max-width: 370px) {
+  .chart-heading { font-size: 9px; }
+  .chart-metrics button { font-size: 11px; }
+  .chart-top { gap: 12px; }
+  .chart-hint { font-size: 9px; }
+}

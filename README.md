@@ -14,6 +14,7 @@ Node.js 20.19+ ou 22.12+. A versão de produção é gerada em `dist/` e pode se
 ## Estrutura
 
 - `src/App.tsx`: componentes e interações; GSAP ScrollTrigger e Lenis.
+- `src/EconomyChart.tsx` e `src/economy-chart.css`: gráfico de PIB com seleção por ponteiro, toque e teclado, valores destacados e alternância entre PIB nominal e variação anual.
 - `src/HistoryJourney.tsx`: sequência histórica vinculada à rolagem, com navegação direta e alternativa de leitura contínua.
 - `src/useTheme.ts`: temas claro/escuro, preferência do sistema e persistência local.
 - `src/motion.ts`: planos de paralaxe da abertura e da paisagem.
@@ -29,6 +30,8 @@ Node.js 20.19+ ou 22.12+. A versão de produção é gerada em `dist/` e pode se
 - `scripts/verify-enhancements.py`: suíte atual com temas, persistência, cinco tamanhos de tela, toque emulado, avanço/retorno da história e alternativa para movimento reduzido. O comando `python scripts/verify-browser.py` executa esta suíte.
 
 O modo escuro segue a preferência do sistema até uma escolha pelo botão do cabeçalho. A escolha é salva no armazenamento local, quando disponível. Na história, rolar para baixo avança os marcos; rolar para cima retorna. Os anos permitem ir diretamente a um capítulo e “Pular história” leva à economia. Em movimento reduzido ou telas com menos de 660 px de altura, os quatro capítulos são exibidos em sequência vertical.
+
+A logo usa uma bandeira vetorial local do Timor-Leste. No celular, a navegação usa os atalhos inferiores, sem menu hambúrguer. A redução de movimento segue somente a preferência de acessibilidade do sistema, sem botão no site. No gráfico econômico, passe o mouse, toque ou arraste horizontalmente para explorar os anos; com o gráfico em foco, use as setas, Home e End. A variação anual é calculada a partir dos valores nominais da série. O ano de 2021 não tem comparação anterior e fica indisponível nesse indicador.
 
 Na seção “Fio a fio”, o scroll desenha uma trama original inspirada no tais. A história e a trama usam scrubbing direto e reversível; parar a rolagem para a reprodução. As abas culturais ficam fixas durante a leitura, com fixação adicional da coluna editorial de solidariedade no desktop. O progresso global é baseado na distância real percorrida, com observação de alterações de layout. `python scripts/verify-scroll.py` verifica estes recursos na versão servida em `http://127.0.0.1:5173`.
 

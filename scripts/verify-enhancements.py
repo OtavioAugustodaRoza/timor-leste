@@ -2,6 +2,7 @@
 from pathlib import Path
 import json
 import os
+import shutil
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,7 +12,7 @@ from playwright.sync_api import sync_playwright
 OUTPUT = ROOT / '.verification'
 OUTPUT.mkdir(exist_ok=True)
 BASE = os.environ.get('ATLAS_TEST_URL', 'http://127.0.0.1:5173')
-CHROME = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
+CHROME = os.environ.get('CHROME_PATH') or shutil.which('google-chrome') or shutil.which('chromium') or r'C:\Program Files\Google\Chrome\Application\chrome.exe'
 
 def check_page(page):
     assert page.locator('h1').count() == 1
@@ -56,7 +57,8 @@ with sync_playwright() as p:
         if width <= 600:
             assert page.locator('.hero-visual').bounding_box()['y'] < height * .85, 'Hero image too low'
             assert page.locator('.mobile-dock').is_visible()
-            for selector in ['.theme-toggle','.menu-toggle']:
+            assert page.locator('.menu-toggle').count() == 0
+            for selector in ['.theme-toggle']:
                 assert page.locator(selector).bounding_box()['width'] >= 44
         page.get_by_role('button', name='Ativar modo escuro', exact=True).click()
         assert page.locator('html').get_attribute('data-theme') == 'dark'
@@ -67,9 +69,6 @@ with sync_playwright() as p:
         assert page.locator('html').get_attribute('data-theme') == 'dark', 'Theme did not persist'
         page.wait_for_timeout(1100)
         if width <= 800:
-            page.get_by_role('button', name='Abrir menu', exact=True).click()
-            page.keyboard.press('Escape')
-            assert page.get_by_role('button', name='Abrir menu', exact=True).evaluate('(element) => element === document.activeElement')
             page.locator('.mobile-dock').get_by_role('link', name='Cultura', exact=True).click()
         else:
             page.locator('.main-nav').get_by_role('link', name='Cultura', exact=True).click()
@@ -123,10 +122,7 @@ with sync_playwright() as p:
         page.screenshot(path=str(OUTPUT / f'v2-{label}-solidarity.png'))
         page.locator('#fontes summary').click()
         assert page.locator('.sources-list a').count() >= 8
-        page.get_by_role('button', name='Reduzir animações', exact=True).click()
-        page.wait_for_timeout(800)
-        assert page.locator('#historia').get_attribute('data-scroll') == 'false'
-        assert page.locator('.memory-scene[aria-hidden="true"]').count() == 0
+        assert page.locator('.motion-control').count() == 0
         check_page(page)
         report.append({'viewport':label,'size':[width,height],'themes':'passed','history':'scroll and controls passed' if height >= 660 else 'reading fallback passed','input':'emulated touch' if touch else 'mouse and keyboard'})
         print(f'{label}: passed', flush=True)

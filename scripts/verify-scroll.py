@@ -1,6 +1,6 @@
 """Focused checks for direct scrubbing, parallax, sticky controls and reading progress."""
 from pathlib import Path
-import json, sys
+import json, os, shutil, sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / '.verification' / 'python'))
@@ -28,7 +28,7 @@ def overflow(page):
     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'), 'Horizontal overflow'
 
 with sync_playwright() as p:
-    browser=p.chromium.launch(executable_path=r'C:\Program Files\Google\Chrome\Application\chrome.exe',headless=True,args=['--disable-gpu','--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows'])
+    browser=p.chromium.launch(executable_path=os.environ.get('CHROME_PATH') or shutil.which('google-chrome') or shutil.which('chromium') or r'C:\Program Files\Google\Chrome\Application\chrome.exe',headless=True,args=['--disable-gpu','--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows'])
     reports,errors=[],[]
     for name,width,height,touch,reduced in [('mobile',390,844,True,False),('desktop',1440,900,False,False),('compact',320,568,True,False),('reduced',390,844,True,True)]:
         context=browser.new_context(viewport={'width':width,'height':height},is_mobile=touch,has_touch=touch,color_scheme='dark' if name in ('mobile','reduced') else 'light',reduced_motion='reduce' if reduced else 'no-preference')
@@ -90,9 +90,7 @@ with sync_playwright() as p:
         assert reading(page)==100
         overflow(page)
         if name=='mobile':
-            page.get_by_role('button',name='Reduzir animações',exact=True).click()
-            page.wait_for_timeout(300)
-            assert page.locator('#trama').get_attribute('data-scroll')=='false'
+            assert page.locator('.motion-control').count()==0
             reading(page)
         reports.append({'viewport':name,'size':[width,height],'progress':'passed','scroll':'direct and reversible' if not reduced and height>=660 else 'reading fallback passed'})
         print(name+': passed',flush=True)

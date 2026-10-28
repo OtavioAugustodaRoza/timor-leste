@@ -4,9 +4,10 @@ import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
-import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, ChartNoAxesCombined, Check, Globe2, Heart, History as HistoryIcon, Menu, Moon, MoveUpRight, Palette, Pause, Play, Plus, Sun, X } from 'lucide-react'
-import { cultures, destinations, gdp, navigation, sources } from './data'
+import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, ChartNoAxesCombined, Check, Globe2, Heart, History as HistoryIcon, Moon, MoveUpRight, Palette, Plus, Sun } from 'lucide-react'
+import { cultures, destinations, navigation, sources } from './data'
 import HistoryJourney from './HistoryJourney'
+import EconomyChart from './EconomyChart'
 import { useTheme } from './useTheme'
 import { animateParallax } from './motion'
 import ReadingProgress from './ReadingProgress'
@@ -113,27 +114,6 @@ function CultureExplorer({ motionEnabled }: { motionEnabled: boolean }) {
   </div>
 }
 
-function EconomyChart() {
-  const [active, setActive] = useState(4)
-  const points = gdp.map((item, index) => ({ x: 45 + index * 108, y: 220 - (item.value - 1) * 60 }))
-  const line = points.map(point => `${point.x},${point.y}`).join(' ')
-  return <div className="economy-chart">
-    <div className="chart-top"><span>PIB · {gdp[active].year}</span><strong>US$ {gdp[active].value.toFixed(2).replace('.', ',')} <small>bi</small></strong></div>
-    <p className="chart-unit">PIB nominal em dólares correntes</p>
-    <svg className="gdp-chart" viewBox="0 0 520 255" role="img" aria-label="PIB nominal: 3,63 bilhões de dólares em 2021; 3,21 em 2022; 2,08 em 2023; 1,87 em 2024; 1,90 em 2025.">
-      <defs><linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#b74632" stopOpacity=".16"/><stop offset="100%" stopColor="#b74632" stopOpacity="0"/></linearGradient></defs>
-      {[1, 2, 3, 4].map(value => <g key={value}><line x1="40" x2="490" y1={220 - (value - 1) * 60} y2={220 - (value - 1) * 60} stroke="currentColor" opacity=".1"/><text x="7" y={225 - (value - 1) * 60} fontSize="11" fill="currentColor" opacity=".7">{value}</text></g>)}
-      <polygon points={`45,220 ${line} 477,220`} fill="url(#chart-fill)"/>
-      <polyline points={line} fill="none" stroke="#b74632" strokeWidth="2.5" strokeLinejoin="round"/>
-      {points.map((point, index) => <g key={index}><circle cx={point.x} cy={point.y} r={active === index ? 8 : 4} fill={active === index ? '#b74632' : '#f5f1e8'} stroke="#b74632" strokeWidth="2"/><text x={point.x} y="249" textAnchor="middle" fill="currentColor" fontSize="11">{gdp[index].year}</text></g>)}
-    </svg>
-    <div className="chart-years" role="group" aria-label="Selecionar ano do PIB">{gdp.map((item, index) => <button key={item.year} aria-pressed={active === index} onClick={() => setActive(index)}>{item.year}</button>)}</div>
-    <p className="chart-value sr-only" aria-live="polite">{gdp[active].year}: {gdp[active].value.toFixed(2).replace('.', ',')} bilhões de dólares.</p>
-    <ExternalLink href="https://fred.stlouisfed.org/series/MKTGDPTLA646NWDB" className="chart-source">Banco Mundial, via FRED · série 2021–2025</ExternalLink>
-    <p className="chart-caveat">Valores nominais incluem o setor petrolífero. A variação desta série não equivale à taxa de crescimento real.</p>
-  </div>
-}
-
 function Solidarity() {
   return <section className="solidarity section" id="solidariedade" aria-labelledby="solidarity-title">
     <div className="solidarity-symbol" aria-hidden="true"><Star/><span>TIMOR-LESTE<br/>PELA DEMOCRACIA</span></div>
@@ -149,10 +129,8 @@ const completeLoader = () => window.dispatchEvent(new Event('atlas-ready'))
 export default function App() {
   const root = useRef<HTMLDivElement>(null)
   const [ready, setReady] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('')
   const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-  const menuButton = useRef<HTMLButtonElement>(null)
   const smoothScroll = useRef<Lenis | null>(null)
   const { theme, toggleTheme } = useTheme()
   const dockIcons = [Globe2, Palette, HistoryIcon, ChartNoAxesCombined, Heart]
@@ -181,8 +159,6 @@ export default function App() {
     return () => { gsap.ticker.remove(update); lenis.destroy(); smoothScroll.current = null }
   }, [ready, reduced])
 
-  useEffect(() => { if (menuOpen) smoothScroll.current?.stop(); else smoothScroll.current?.start() }, [menuOpen])
-
   useEffect(() => {
     document.documentElement.dataset.motion = reduced ? 'reduced' : 'full'
   }, [reduced])
@@ -196,20 +172,9 @@ export default function App() {
   }, [ready])
 
   useEffect(() => {
-    document.body.style.overflow = !ready || menuOpen ? 'hidden' : ''
-    if (menuOpen) requestAnimationFrame(() => document.querySelector<HTMLAnchorElement>('.main-nav a')?.focus())
-    const close = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape' && menuOpen) { setMenuOpen(false); menuButton.current?.focus() }
-      if (event.key === 'Tab' && menuOpen) {
-        const links = Array.from(document.querySelectorAll<HTMLElement>('.main-nav a, .menu-toggle'))
-        const first = links[0], last = links[links.length - 1]
-        if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
-      }
-    }
-    document.addEventListener('keydown', close)
-    return () => { document.body.style.overflow = ''; document.removeEventListener('keydown', close) }
-  }, [ready, menuOpen])
+    document.body.style.overflow = !ready ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [ready])
 
   useEffect(() => {
     const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) setActiveSection(entry.target.id) }) }, { rootMargin: '-20% 0px -55% 0px' })
@@ -234,8 +199,8 @@ export default function App() {
   return <div ref={root} className={`atlas ${reduced ? 'motion-reduced' : ''}`}>
     {!ready && <Loader onComplete={completeLoader} reduced={reduced}/>}
     <a className="skip-link" href="#conteudo">Pular para o conteúdo</a>
-    <header className="site-header" inert={!ready}><a className="brand" href="#inicio" aria-label="Timor-Leste, início"><span className="brand-icon"><Star/></span><span>TIMOR<span className="brand-dash">—</span>LESTE<small>um atlas vivo</small></span></a><nav id="main-navigation" className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Navegação principal">{navigation.map(item => <a key={item.id} href={`#${item.id}`} aria-current={activeSection === item.id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{item.label}</a>)}</nav><a className="header-explore" href="#territorio">Descobrir <ArrowUpRight size={16}/></a><button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'} title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}>{theme === 'dark' ? <Sun size={19}/> : <Moon size={19}/>}</button><button ref={menuButton} className="menu-toggle" aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuOpen} aria-controls="main-navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button><ReadingProgress ready={ready}/></header>
-    <main id="conteudo" inert={!ready || menuOpen}>
+    <header className="site-header" inert={!ready}><a className="brand" href="#inicio" aria-label="Timor-Leste, início"><span className="brand-icon"><img src="/images/timor-leste-flag.svg" alt="Bandeira do Timor-Leste" width="48" height="24"/></span><span>TIMOR<span className="brand-dash">—</span>LESTE<small>um atlas vivo</small></span></a><nav id="main-navigation" className="main-nav" aria-label="Navegação principal">{navigation.map(item => <a key={item.id} href={`#${item.id}`} aria-current={activeSection === item.id ? 'location' : undefined}>{item.label}</a>)}</nav><a className="header-explore" href="#territorio">Descobrir <ArrowUpRight size={16}/></a><button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'} title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}>{theme === 'dark' ? <Sun size={19}/> : <Moon size={19}/>}</button><ReadingProgress ready={ready}/></header>
+    <main id="conteudo" inert={!ready}>
       <section className="hero" id="inicio" aria-labelledby="hero-title"><div className="hero-copy"><div className="hero-location"><span className="location-dot"/> Um encontro com o Timor-Leste <span className="hero-location-line"/></div><h1 id="hero-title"><span className="sr-only">Timor-Leste: </span><span className="hero-line"><span>A força de</span></span><span className="hero-line"><span>ser <i>livre.</i></span></span></h1><p className="hero-description">Entre montanhas e o mar, um povo tece<br className="desktop-break"/> sua história. Conheça a terra onde a coragem<br className="desktop-break"/> encontra um novo amanhecer.</p><div className="hero-actions"><a className="button button-red" href="#territorio">Começar a viagem <ArrowUpRight size={19}/></a><a className="hero-scroll" href="#cultura"><span>Sentir a cultura</span><ArrowDown size={17}/></a></div><div className="hero-note"><span className="tiny-flag" aria-label="Cores da bandeira do Timor-Leste"><Star/></span><span>Uma terra pequena.<br/><strong>Uma história que atravessa o mundo.</strong></span></div></div>
         <div className="hero-visual"><img className="hero-image parallax-photo" src="/images/coast.webp" alt="Águas turquesa, uma praia e um barco no litoral do Timor-Leste" width="1086" height="1448" fetchPriority="high"/><div className="hero-image-top"><span>O outro lado do mundo.<br/>Um novo jeito de olhar.</span><MoveUpRight size={25}/></div><div className="hero-photo-bottom"><span><span className="photo-dot"/> Timor-Leste, Sudeste Asiático</span><span>08° S · 125° E</span></div><div className="hero-seal"><Star/><span>TERRA DE<br/>RESISTÊNCIA<br/>& BELEZA</span></div></div>
         <div className="hero-bottom"><span>DESCUBRA COM CALMA. SINTA CADA HISTÓRIA.</span><a href="#territorio" aria-label="Rolar para conhecer o país"><ArrowDown size={19}/></a><span>TAIS, MAR, MEMÓRIA E FUTURO.</span></div>
@@ -252,8 +217,8 @@ export default function App() {
       <section className="closing section"><div className="closing-star"><Star/></div><p className="reveal">Conhecer é o primeiro passo.<br/><i>Continuar olhando é uma escolha.</i></p><a className="button button-dark" href="#fontes">Continue a descoberta <ArrowDown size={18}/></a></section>
       <section className="sources section" id="fontes" aria-labelledby="sources-title"><details><summary><span><h2 id="sources-title">Histórias com fontes.</h2><span>Referências, dados e créditos das imagens</span></span><Plus size={25}/></summary><div className="sources-content"><p>Atlas editorial independente, sem vínculo com o governo. Pesquisa revisada em 27 de outubro de 2026. O posicionamento em defesa da democracia está identificado como opinião editorial.</p><div className="sources-list">{sources.map(source => <ExternalLink key={source.name} href={source.url}><span><strong>{source.name}</strong><small>{source.description}</small></span></ExternalLink>)}</div><p className="image-credits">Fotografias: portal oficial de Turismo de Timor-Leste, Ministério do Turismo e Ambiente. Tipografia: Cormorant Garamond e DM Sans. Padrões geométricos originais inspirados no ritmo da tecelagem; não são reproduções de motivos tradicionais específicos.</p><p>O gráfico usa valores arredondados para bilhões de US$. Período de referência: 2021–2025. Dados históricos estão sujeitos a revisões pelas instituições responsáveis.</p></div></details></section>
     </main>
-    <footer className="site-footer" inert={!ready || menuOpen}><div className="footer-top"><a className="footer-brand" href="#inicio">Timor<i>—</i>Leste<Star/></a><span>O mundo é maior<br/>quando a gente conhece.</span><a className="back-top" href="#inicio">Voltar ao início <ArrowUp size={18}/></a></div><div className="footer-bottom"><span>© 2026 · Um atlas vivo. Um olhar independente.</span><button className="motion-control" onClick={() => setReduced(!reduced)} aria-pressed={reduced}>{reduced ? <Play size={13}/> : <Pause size={13}/>} {reduced ? 'Ativar animações' : 'Reduzir animações'}</button><a href="#fontes">Feito para conhecer. E respeitar. <Heart size={12}/></a></div></footer>
-    <nav className="mobile-dock" aria-label="Atalhos de navegação" inert={!ready || menuOpen}>{navigation.map((item, index) => {
+    <footer className="site-footer" inert={!ready}><div className="footer-top"><a className="footer-brand" href="#inicio">Timor<i>—</i>Leste<img className="footer-flag" src="/images/timor-leste-flag.svg" alt="Bandeira do Timor-Leste" width="44" height="22"/></a><span>O mundo é maior<br/>quando a gente conhece.</span><a className="back-top" href="#inicio">Voltar ao início <ArrowUp size={18}/></a></div><div className="footer-bottom"><span>© 2026 · Um atlas vivo. Um olhar independente.</span><a href="#fontes">Feito para conhecer. E respeitar. <Heart size={12}/></a></div></footer>
+    <nav className="mobile-dock" aria-label="Atalhos de navegação" inert={!ready}>{navigation.map((item, index) => {
       const Icon = dockIcons[index]
       return <a key={item.id} href={`#${item.id}`} aria-current={activeSection === item.id ? 'location' : undefined}><Icon size={19} strokeWidth={1.5}/><span>{index === 4 ? 'Uma voz' : item.label}</span></a>
     })}</nav>
