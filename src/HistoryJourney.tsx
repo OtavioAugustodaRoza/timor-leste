@@ -56,7 +56,7 @@ export default function HistoryJourney({ ready, reduced, scrollTo }: Props) {
           const stage = container.querySelector<HTMLElement>('.memory-stage')!
           return `bottom ${(document.querySelector('header')?.getBoundingClientRect().height ?? 72) + stage.offsetHeight}`
         },
-        scrub: .45, invalidateOnRefresh: true,
+        scrub: true, invalidateOnRefresh: true,
       },
     })
     trigger.current = timeline.scrollTrigger ?? null
@@ -96,7 +96,7 @@ export default function HistoryJourney({ ready, reduced, scrollTo }: Props) {
     }
   }
 
-  return <section ref={section} className="history-journey" id="historia" aria-labelledby="memory-title" data-scroll={enhanced} data-active-year={history[active].year}>
+  return <section ref={section} className="history-journey" id="historia" aria-labelledby="memory-title" data-scroll={enhanced} data-active-year={history[active].year} data-lenis-prevent-wheel>
     <div className="memory-stage">
       <div className="memory-heading"><h2 id="memory-title">A liberdade tem<br/><i>memória.</i></h2><span className="memory-instruction"><ArrowDown size={16}/>{enhanced ? 'Role para avançar · imagens atuais' : 'Uma história para atravessar com calma'}</span></div>
       <div className="memory-scenes">
