@@ -19,3 +19,6 @@ Inferência de trabalho: público lusófono interessado em conhecer o país. Nom
 
 ## Evidence on Hand
 Fontes públicas: Governo de Timor-Leste, UNESCO, Banco Mundial, FMI, Turismo de Timor-Leste e OHCHR.
+
+## Prioridades confirmadas
+O celular é a principal plataforma de uso. Oferecer modo escuro, paralaxe em camadas e uma seção histórica que avança e transiciona conforme a rolagem. Preservar leitura, navegação por teclado e acesso a todos os marcos quando há preferência de movimento reduzido.

@@ -8,6 +8,7 @@ import '@fontsource/cormorant-garamond/latin-500.css'
 import '@fontsource/cormorant-garamond/latin-500-italic.css'
 import 'lenis/dist/lenis.css'
 import './styles.css'
+import './enhancements.css'
 import App from './App'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

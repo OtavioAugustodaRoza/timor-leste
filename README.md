@@ -14,11 +14,18 @@ Node.js 20.19+ ou 22.12+. A versão de produção é gerada em `dist/` e pode se
 ## Estrutura
 
 - `src/App.tsx`: componentes e interações; GSAP ScrollTrigger e Lenis.
+- `src/HistoryJourney.tsx`: sequência histórica vinculada à rolagem, com navegação direta e alternativa de leitura contínua.
+- `src/useTheme.ts`: temas claro/escuro, preferência do sistema e persistência local.
+- `src/motion.ts`: planos de paralaxe da abertura e da paisagem.
 - `src/data.ts`: destinos, cultura, história, PIB e referências.
 - `src/styles.css`: identidade visual, responsividade e redução de movimento.
+- `src/enhancements.css`: tema escuro, experiência móvel e palco da narrativa histórica.
 - `public/images/`: fotografias locais do portal oficial de turismo.
 - `scripts/fetch-assets.py`: download reproduzível das fotografias selecionadas.
 - `scripts/verify-browser.py`: verificação de navegação, abas, gráfico, responsividade e movimento reduzido.
+- `scripts/verify-enhancements.py`: suíte atual com temas, persistência, cinco tamanhos de tela, toque emulado, avanço/retorno da história e alternativa para movimento reduzido. O comando `python scripts/verify-browser.py` executa esta suíte.
+
+O modo escuro segue a preferência do sistema até uma escolha pelo botão do cabeçalho. A escolha é salva no armazenamento local, quando disponível. Na história, rolar para baixo avança os marcos; rolar para cima retorna. Os anos permitem ir diretamente a um capítulo e “Pular história” leva à economia. Em movimento reduzido ou telas com menos de 660 px de altura, os quatro capítulos são exibidos em sequência vertical.
 
 Conteúdo consultado em 27/10/2026. Os valores do PIB são nominais, em bilhões de dólares correntes, com fonte Banco Mundial via FRED, e não representam uma série de crescimento real. A seção sobre Myanmar identifica opinião editorial e distingue tensões diplomáticas de conflito armado entre países.
 

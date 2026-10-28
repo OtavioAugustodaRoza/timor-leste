@@ -4,10 +4,14 @@ import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
-import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, Check, Globe2, Heart, Menu, MoveUpRight, Pause, Play, Plus, X } from 'lucide-react'
-import { cultures, destinations, gdp, history, navigation, sources } from './data'
+import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, ChartNoAxesCombined, Check, Globe2, Heart, History as HistoryIcon, Menu, Moon, MoveUpRight, Palette, Pause, Play, Plus, Sun, X } from 'lucide-react'
+import { cultures, destinations, gdp, navigation, sources } from './data'
+import HistoryJourney from './HistoryJourney'
+import { useTheme } from './useTheme'
+import { animateParallax } from './motion'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
+ScrollTrigger.config({ ignoreMobileResize: true })
 
 function Star({ className = '' }: { className?: string }) {
   return <svg className={className} viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="m50 3 11.2 34.5H98L68.3 59l11.3 35L50 72.4 20.4 94l11.3-35L2 37.5h36.8Z" /></svg>
@@ -27,6 +31,9 @@ function Loader({ onComplete, reduced }: { onComplete: () => void, reduced: bool
   const completed = useRef(false)
   useEffect(() => {
     let alive = true
+    const failSafe = window.setTimeout(() => {
+      if (alive) { completed.current = true; onComplete() }
+    }, 4500)
     const meter = { value: 0 }
     const tween = gsap.to(meter, { value: 90, duration: 1.15, ease: 'power2.out', onUpdate: () => alive && setProgress(Math.round(meter.value)) })
     const hero = new Image()
@@ -43,7 +50,7 @@ function Loader({ onComplete, reduced }: { onComplete: () => void, reduced: bool
         gsap.to(container.current, { yPercent: -100, duration: reduced ? 0 : .85, ease: 'power4.inOut', onComplete })
       } })
     })
-    return () => { alive = false; tween.kill(); finish?.kill(); gsap.killTweensOf(container.current) }
+    return () => { alive = false; window.clearTimeout(failSafe); tween.kill(); finish?.kill(); gsap.killTweensOf(container.current) }
   }, [onComplete, reduced])
   return <div className="loader" ref={container} role="status" aria-label="Preparando a viagem pelo Timor-Leste">
     <div className="loader-top"><span>TIMOR-LESTE</span><span>Um atlas vivo</span></div>
@@ -53,10 +60,15 @@ function Loader({ onComplete, reduced }: { onComplete: () => void, reduced: bool
   </div>
 }
 
-function DestinationExplorer() {
+function DestinationExplorer({ motionEnabled }: { motionEnabled: boolean }) {
+  const container = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const place = destinations[active]
-  return <div className="destination-explorer">
+  useGSAP(() => {
+    if (!motionEnabled) return
+    gsap.fromTo('.destination-image img', { yPercent: -5, scale: 1.13 }, { yPercent: 5, scale: 1.02, ease: 'none', scrollTrigger: { trigger: '.destination-image', start: 'top bottom', end: 'bottom top', scrub: .55 } })
+  }, { scope: container, dependencies: [active, motionEnabled], revertOnUpdate: true })
+  return <div className="destination-explorer" ref={container}>
     <div className="destination-list" role="tablist" aria-label="Escolha um destino" aria-orientation="vertical">
       {destinations.map((destination, index) => <button key={destination.name} role="tab" id={`destination-tab-${index}`} aria-controls="destination-panel" aria-selected={active === index} tabIndex={active === index ? 0 : -1} className={`destination-tab ${active === index ? 'active' : ''}`} onClick={() => setActive(index)} onKeyDown={event => tabKey(event, index, destinations.length, setActive, 'destination-tab', true)}>
         <span><span className="destination-name">{destination.name}</span><span className="destination-subtitle">{destination.subtitle}</span></span><ArrowUpRight size={24} />
@@ -80,10 +92,15 @@ function tabKey(event: KeyboardEvent<HTMLButtonElement>, index: number, length: 
   document.getElementById(`${prefix}-${next}`)?.focus()
 }
 
-function CultureExplorer() {
+function CultureExplorer({ motionEnabled }: { motionEnabled: boolean }) {
+  const container = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const culture = cultures[active]
-  return <>
+  useGSAP(() => {
+    if (!motionEnabled) return
+    gsap.fromTo('.culture-image img', { yPercent: -5, scale: 1.13 }, { yPercent: 5, scale: 1.02, ease: 'none', scrollTrigger: { trigger: '.culture-image', start: 'top bottom', end: 'bottom top', scrub: .55 } })
+  }, { scope: container, dependencies: [active, motionEnabled], revertOnUpdate: true })
+  return <div ref={container}>
     <div className="culture-tabs" role="tablist" aria-label="Explore a cultura timorense">
       {cultures.map((item, index) => <button key={item.id} role="tab" id={`culture-tab-${index}`} aria-controls="culture-panel" aria-selected={active === index} tabIndex={active === index ? 0 : -1} onClick={() => setActive(index)} onKeyDown={event => tabKey(event, index, cultures.length, setActive, 'culture-tab')}><span>{item.title}</span><Plus size={16}/></button>)}
     </div>
@@ -91,16 +108,6 @@ function CultureExplorer() {
       <div className="culture-image" key={culture.image}><img src={`/images/${culture.image}`} alt={culture.alt} loading="lazy" width="1000" height="900"/><span className="culture-photo-label">Saberes que atravessam gerações</span></div>
       <div className="culture-copy" key={culture.id}><div className="small-star"><Star/></div><h3>{culture.subtitle}</h3><p>{culture.text}</p><p className="culture-note">{culture.note}</p><ExternalLink href={culture.source} className="text-link">{culture.sourceLabel}</ExternalLink></div>
     </div>
-  </>
-}
-
-function Timeline() {
-  const [active, setActive] = useState(2)
-  const period = history[active]
-  return <div className="history-inner">
-    <div className="history-heading"><h2 className="reveal">A liberdade tem<br/><i>memória.</i></h2><p className="reveal">Uma história de resistência, coragem coletiva e do direito de decidir o próprio futuro.</p></div>
-    <div className="history-tabs" role="tablist" aria-label="Marcos da história do Timor-Leste">{history.map((item, index) => <button key={item.year} id={`history-tab-${index}`} role="tab" aria-selected={active === index} aria-controls="history-panel" tabIndex={active === index ? 0 : -1} onClick={() => setActive(index)} onKeyDown={event => tabKey(event, index, history.length, setActive, 'history-tab')}><span>{item.year}</span><span className="history-dot"/><small>{item.label}</small></button>)}</div>
-    <div className="history-story" id="history-panel" role="tabpanel" aria-labelledby={`history-tab-${active}`} tabIndex={0}><div className="history-year" aria-hidden="true">{period.year}<Star/></div><div key={period.year} className="history-copy"><span className="history-date">{period.date}</span><h3>{period.title}</h3><p>{period.text}</p><ExternalLink href={active === 3 ? 'https://theaseanmagazine.asean.org/article/forging-a-new-era-timor-leste-admitted-into-asean/' : 'https://timorleste.tl/about#history'} className="text-link">Ler sobre esse capítulo</ExternalLink></div></div>
   </div>
 }
 
@@ -144,6 +151,13 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('')
   const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const menuButton = useRef<HTMLButtonElement>(null)
+  const smoothScroll = useRef<Lenis | null>(null)
+  const { theme, toggleTheme } = useTheme()
+  const dockIcons = [Globe2, Palette, HistoryIcon, ChartNoAxesCombined, Heart]
+  const scrollTo = (position: number) => {
+    if (smoothScroll.current) smoothScroll.current.scrollTo(position, { duration: .8 })
+    else window.scrollTo({ top: position, behavior: reduced ? 'instant' : 'smooth' })
+  }
 
   useEffect(() => {
     const markReady = () => setReady(true)
@@ -155,14 +169,29 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (!ready || reduced) return
-    const lenis = new Lenis({ duration: 1.1, smoothWheel: true, anchors: { offset: -90 } })
+    if (!ready || reduced || matchMedia('(pointer: coarse)').matches) return
+    const lenis = new Lenis({ duration: .9, smoothWheel: true, anchors: { offset: -90 } })
+    smoothScroll.current = lenis
     lenis.on('scroll', ScrollTrigger.update)
     const update = (time: number) => lenis.raf(time * 1000)
     gsap.ticker.add(update)
     gsap.ticker.lagSmoothing(0)
-    return () => { gsap.ticker.remove(update); lenis.destroy() }
+    return () => { gsap.ticker.remove(update); lenis.destroy(); smoothScroll.current = null }
   }, [ready, reduced])
+
+  useEffect(() => { if (menuOpen) smoothScroll.current?.stop(); else smoothScroll.current?.start() }, [menuOpen])
+
+  useEffect(() => {
+    document.documentElement.dataset.motion = reduced ? 'reduced' : 'full'
+  }, [reduced])
+
+  useEffect(() => {
+    if (!ready || !window.location.hash) return
+    const timer = window.setTimeout(() => {
+      try { document.getElementById(decodeURIComponent(window.location.hash.slice(1)))?.scrollIntoView() } catch { /* Ignore malformed fragments. */ }
+    }, 100)
+    return () => window.clearTimeout(timer)
+  }, [ready])
 
   useEffect(() => {
     document.body.style.overflow = !ready || menuOpen ? 'hidden' : ''
@@ -194,37 +223,37 @@ export default function App() {
     gsap.from('.hero-description, .hero-actions, .hero-note', { y: 20, opacity: 0, duration: .8, stagger: .12, delay: .3, ease: 'power3.out' })
     gsap.from('.hero-visual', { clipPath: 'inset(0 0 100% 0)', duration: 1.4, ease: 'power4.inOut' })
     gsap.utils.toArray<HTMLElement>('.reveal').forEach(element => gsap.from(element, { y: 34, opacity: 0, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: element, start: 'top 92%', once: true } }))
-    gsap.utils.toArray<HTMLElement>('.parallax-photo').forEach(element => gsap.fromTo(element, { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: element.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1 } }))
-    gsap.fromTo('.landscape-title', { yPercent: 25 }, { yPercent: -20, ease: 'none', scrollTrigger: { trigger: '.landscape-break', start: 'top bottom', end: 'bottom top', scrub: .7 } })
-    gsap.from('.manifesto-word', { color: '#c2bbad', stagger: .12, scrollTrigger: { trigger: '.manifesto', start: 'top 82%', end: 'bottom 42%', scrub: .6 } })
+    if (root.current) animateParallax(root.current)
+    gsap.from('.manifesto-word', { opacity: .3, stagger: .12, scrollTrigger: { trigger: '.manifesto', start: 'top 82%', end: 'bottom 42%', scrub: .6 } })
     gsap.from('.culture-tabs', { clipPath: 'inset(0 100% 0 0)', duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.culture-tabs', start: 'top 90%', once: true } })
     const refresh = () => ScrollTrigger.refresh()
     document.fonts.ready.then(refresh)
-    if (window.location.hash) requestAnimationFrame(() => {
-      try { document.getElementById(decodeURIComponent(window.location.hash.slice(1)))?.scrollIntoView() } catch { /* Ignore malformed fragments. */ }
-    })
   }, { scope: root, dependencies: [ready, reduced], revertOnUpdate: true })
 
   return <div ref={root} className={`atlas ${reduced ? 'motion-reduced' : ''}`}>
     {!ready && <Loader onComplete={completeLoader} reduced={reduced}/>}
     <a className="skip-link" href="#conteudo">Pular para o conteúdo</a>
-    <header className="site-header" inert={!ready}><a className="brand" href="#inicio" aria-label="Timor-Leste, início"><span className="brand-icon"><Star/></span><span>TIMOR<span className="brand-dash">—</span>LESTE<small>um atlas vivo</small></span></a><nav id="main-navigation" className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Navegação principal">{navigation.map(item => <a key={item.id} href={`#${item.id}`} aria-current={activeSection === item.id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{item.label}</a>)}</nav><a className="header-explore" href="#territorio">Descobrir <ArrowUpRight size={16}/></a><button ref={menuButton} className="menu-toggle" aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuOpen} aria-controls="main-navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button><div className="reading-progress"/></header>
+    <header className="site-header" inert={!ready}><a className="brand" href="#inicio" aria-label="Timor-Leste, início"><span className="brand-icon"><Star/></span><span>TIMOR<span className="brand-dash">—</span>LESTE<small>um atlas vivo</small></span></a><nav id="main-navigation" className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Navegação principal">{navigation.map(item => <a key={item.id} href={`#${item.id}`} aria-current={activeSection === item.id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{item.label}</a>)}</nav><a className="header-explore" href="#territorio">Descobrir <ArrowUpRight size={16}/></a><button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'} title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}>{theme === 'dark' ? <Sun size={19}/> : <Moon size={19}/>}</button><button ref={menuButton} className="menu-toggle" aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuOpen} aria-controls="main-navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button><div className="reading-progress"/></header>
     <main id="conteudo" inert={!ready || menuOpen}>
       <section className="hero" id="inicio" aria-labelledby="hero-title"><div className="hero-copy"><div className="hero-location"><span className="location-dot"/> Um encontro com o Timor-Leste <span className="hero-location-line"/></div><h1 id="hero-title"><span className="sr-only">Timor-Leste: </span><span className="hero-line"><span>A força de</span></span><span className="hero-line"><span>ser <i>livre.</i></span></span></h1><p className="hero-description">Entre montanhas e o mar, um povo tece<br className="desktop-break"/> sua história. Conheça a terra onde a coragem<br className="desktop-break"/> encontra um novo amanhecer.</p><div className="hero-actions"><a className="button button-red" href="#territorio">Começar a viagem <ArrowUpRight size={19}/></a><a className="hero-scroll" href="#cultura"><span>Sentir a cultura</span><ArrowDown size={17}/></a></div><div className="hero-note"><span className="tiny-flag" aria-label="Cores da bandeira do Timor-Leste"><Star/></span><span>Uma terra pequena.<br/><strong>Uma história que atravessa o mundo.</strong></span></div></div>
         <div className="hero-visual"><img className="hero-image parallax-photo" src="/images/coast.webp" alt="Águas turquesa, uma praia e um barco no litoral do Timor-Leste" width="1086" height="1448" fetchPriority="high"/><div className="hero-image-top"><span>O outro lado do mundo.<br/>Um novo jeito de olhar.</span><MoveUpRight size={25}/></div><div className="hero-photo-bottom"><span><span className="photo-dot"/> Timor-Leste, Sudeste Asiático</span><span>08° S · 125° E</span></div><div className="hero-seal"><Star/><span>TERRA DE<br/>RESISTÊNCIA<br/>& BELEZA</span></div></div>
         <div className="hero-bottom"><span>DESCUBRA COM CALMA. SINTA CADA HISTÓRIA.</span><a href="#territorio" aria-label="Rolar para conhecer o país"><ArrowDown size={19}/></a><span>TAIS, MAR, MEMÓRIA E FUTURO.</span></div>
       </section>
       <Pattern className="hero-weave"/>
-      <section className="territory section" id="territorio" aria-labelledby="territory-title"><div className="section-heading"><h2 id="territory-title" className="reveal">Pequeno no mapa.<br/><i>Imenso na alma.</i></h2><div className="section-intro reveal"><p>Na metade oriental da ilha de Timor, em Ataúro, Jaco e no enclave de Oecusse, um país reúne muitas formas de viver, lembrar e pertencer.</p><span className="inline-note">Díli, a capital · Tétum e português, línguas oficiais</span></div></div><DestinationExplorer/></section>
+      <section className="territory section" id="territorio" aria-labelledby="territory-title"><div className="section-heading"><h2 id="territory-title" className="reveal">Pequeno no mapa.<br/><i>Imenso na alma.</i></h2><div className="section-intro reveal"><p>Na metade oriental da ilha de Timor, em Ataúro, Jaco e no enclave de Oecusse, um país reúne muitas formas de viver, lembrar e pertencer.</p><span className="inline-note">Díli, a capital · Tétum e português, línguas oficiais</span></div></div><DestinationExplorer motionEnabled={ready && !reduced}/></section>
       <section className="manifesto section" aria-label="Identidade timorense"><span className="manifesto-mark" aria-hidden="true"><Star/></span><p>{'Um país não se mede apenas pelo seu território. Mas pelas histórias que guarda, pelos saberes que partilha e pela liberdade que escolhe defender.'.split(' ').map((word, index) => <span key={index} className="manifesto-word">{word} </span>)}</p><span className="manifesto-signature">Timor-Leste. Uma identidade em movimento.</span></section>
-      <section className="culture section" id="cultura" aria-labelledby="culture-title"><div className="section-heading"><h2 id="culture-title" className="reveal">A memória vive<br/><i>em cada fio.</i></h2><div className="section-intro reveal"><p>Tecer, celebrar, cultivar. A cultura timorense não ficou no passado: ela se renova nos gestos de todos os dias.</p><span className="inline-note">Toque em uma tradição e descubra suas histórias.</span></div></div><CultureExplorer/></section>
+      <section className="culture section" id="cultura" aria-labelledby="culture-title"><div className="section-heading"><h2 id="culture-title" className="reveal">A memória vive<br/><i>em cada fio.</i></h2><div className="section-intro reveal"><p>Tecer, celebrar, cultivar. A cultura timorense não ficou no passado: ela se renova nos gestos de todos os dias.</p><span className="inline-note">Toque em uma tradição e descubra suas histórias.</span></div></div><CultureExplorer motionEnabled={ready && !reduced}/></section>
       <section className="landscape-break" aria-label="Paisagem das terras altas"><img className="parallax-photo" src="/images/mountains.webp" alt="Paisagem costeira montanhosa do Timor-Leste" loading="lazy" width="1600" height="900"/><div className="landscape-overlay"/><div className="landscape-title"><span>Há lugares que a gente visita.</span><p>Outros ficam <i>em nós.</i></p></div><span className="landscape-caption">Pelas paisagens do Timor-Leste</span></section>
-      <section className="history-section section" id="historia" aria-label="História do Timor-Leste"><Timeline/><Pattern className="history-weave"/></section>
+      <HistoryJourney ready={ready} reduced={reduced} scrollTo={scrollTo}/>
       <section className="economy section" id="economia" aria-labelledby="economy-title"><div className="section-heading"><h2 id="economy-title" className="reveal">Cultivar o presente.<br/><i>Diversificar o futuro.</i></h2><div className="section-intro reveal"><p>Transformar a riqueza do petróleo em oportunidades duradouras é um dos grandes desafios do país. O futuro também passa pela terra, pelas pessoas e pelo conhecimento.</p></div></div><div className="economy-grid"><div className="economy-paths"><div className="economy-path reveal"><span className="path-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 35V17m0 8C8 27 7 16 7 13c10-1 13 4 13 8m0-2C18 8 28 5 34 6c0 9-4 15-14 13" fill="none" stroke="currentColor" strokeWidth="1.5"/></svg></span><div><h3>Uma economia com raízes</h3><p>Agricultura e café conectam renda, território e o trabalho de pequenos produtores.</p></div></div><div className="economy-path reveal"><span className="path-mark"><Globe2/></span><div><h3>Natureza que cria possibilidades</h3><p>Turismo comunitário e conservação podem ampliar oportunidades, com respeito aos ecossistemas.</p></div></div><div className="economy-path reveal"><span className="path-mark"><ArrowUpRight/></span><div><h3>Mais caminhos, menos dependência</h3><p>Diversificação, educação e um setor privado mais forte são prioridades para além das receitas petrolíferas.</p></div></div><ExternalLink href="https://www.imf.org/en/news/articles/2025/06/10/cf-timor-lestes-opportunity-to-turn-its-wealth-into-economic-development" className="text-link">Aprofundar a análise econômica</ExternalLink></div><EconomyChart/></div><div className="coffee-footnote"><img src="/images/coffee.webp" alt="Trabalho de colheita do café timorense" loading="lazy" width="200" height="180"/><p>O futuro também tem<br/><i>aroma de café.</i></p><ExternalLink href="https://timorleste.tl/experiences/coffee" className="text-link">Conheça quem cultiva</ExternalLink></div></section>
       <Solidarity/>
       <section className="closing section"><div className="closing-star"><Star/></div><p className="reveal">Conhecer é o primeiro passo.<br/><i>Continuar olhando é uma escolha.</i></p><a className="button button-dark" href="#fontes">Continue a descoberta <ArrowDown size={18}/></a></section>
       <section className="sources section" id="fontes" aria-labelledby="sources-title"><details><summary><span><h2 id="sources-title">Histórias com fontes.</h2><span>Referências, dados e créditos das imagens</span></span><Plus size={25}/></summary><div className="sources-content"><p>Atlas editorial independente, sem vínculo com o governo. Pesquisa revisada em 27 de outubro de 2026. O posicionamento em defesa da democracia está identificado como opinião editorial.</p><div className="sources-list">{sources.map(source => <ExternalLink key={source.name} href={source.url}><span><strong>{source.name}</strong><small>{source.description}</small></span></ExternalLink>)}</div><p className="image-credits">Fotografias: portal oficial de Turismo de Timor-Leste, Ministério do Turismo e Ambiente. Tipografia: Cormorant Garamond e DM Sans. Padrões geométricos originais inspirados no ritmo da tecelagem; não são reproduções de motivos tradicionais específicos.</p><p>O gráfico usa valores arredondados para bilhões de US$. Período de referência: 2021–2025. Dados históricos estão sujeitos a revisões pelas instituições responsáveis.</p></div></details></section>
     </main>
     <footer className="site-footer" inert={!ready || menuOpen}><div className="footer-top"><a className="footer-brand" href="#inicio">Timor<i>—</i>Leste<Star/></a><span>O mundo é maior<br/>quando a gente conhece.</span><a className="back-top" href="#inicio">Voltar ao início <ArrowUp size={18}/></a></div><div className="footer-bottom"><span>© 2026 · Um atlas vivo. Um olhar independente.</span><button className="motion-control" onClick={() => setReduced(!reduced)} aria-pressed={reduced}>{reduced ? <Play size={13}/> : <Pause size={13}/>} {reduced ? 'Ativar animações' : 'Reduzir animações'}</button><a href="#fontes">Feito para conhecer. E respeitar. <Heart size={12}/></a></div></footer>
+    <nav className="mobile-dock" aria-label="Atalhos de navegação" inert={!ready || menuOpen}>{navigation.map((item, index) => {
+      const Icon = dockIcons[index]
+      return <a key={item.id} href={`#${item.id}`} aria-current={activeSection === item.id ? 'location' : undefined}><Icon size={19} strokeWidth={1.5}/><span>{index === 4 ? 'Uma voz' : item.label}</span></a>
+    })}</nav>
     </div>
 }

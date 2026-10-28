@@ -43,6 +43,11 @@ if __name__ == '__main__':
             ('dance.webp', 'https://timorleste.tl/images/gallery/cultural-dance.webp'),
             ('coffee.webp', 'https://timorleste.tl/images/asean/coffee-picking.webp'),
             ('mountains.webp', 'https://timorleste.tl/images/hero-destinations-ridge.webp'),
+            ('history-resistance.webp', 'https://timorleste.tl/images/asean/resistance-museum.webp'),
+            ('history-dili.jpg', 'https://timorleste.tl/images/dili-waterfront.jpg'),
+            ('history-palace.webp', 'https://timorleste.tl/images/asean/government-palace.webp'),
         ]
+        if '--history-only' in __import__('sys').argv:
+            urls = [item for item in urls if item[0].startswith('history-')]
         with ThreadPoolExecutor(max_workers=4) as executor:
             list(executor.map(download, urls))
