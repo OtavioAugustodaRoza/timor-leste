@@ -57,6 +57,8 @@ export default function HistoryJourney({ ready, reduced, scrollTo }: Props) {
           return `bottom ${(document.querySelector('header')?.getBoundingClientRect().height ?? 72) + stage.offsetHeight}`
         },
         scrub: true, invalidateOnRefresh: true,
+        onUpdate: self => updateActive(Math.min(3, Math.floor(self.progress * 4))),
+        onRefresh: self => updateActive(Math.min(3, Math.floor(self.progress * 4))),
       },
     })
     trigger.current = timeline.scrollTrigger ?? null
@@ -75,7 +77,6 @@ export default function HistoryJourney({ ready, reduced, scrollTo }: Props) {
     })
     // Four equal reading intervals, including a full interval for the final scene.
     timeline.to('.memory-progress-fill', { scaleX: 1, duration: 4 }, 0)
-    timeline.eventCallback('onUpdate', () => updateActive(Math.min(3, Math.floor(timeline.time()))))
     const refresh = () => ScrollTrigger.refresh()
     container.querySelectorAll('img').forEach(img => img.addEventListener('load', refresh, { once: true }))
     const timer = window.setTimeout(refresh, 100)

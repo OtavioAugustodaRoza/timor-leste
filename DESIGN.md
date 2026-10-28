@@ -13,3 +13,9 @@ O celular é a plataforma prioritária, conforme solicitação do usuário. Text
 Modo escuro em verde muito profundo, texto marfim e destaques em terracota claro. Detectar a preferência do sistema até haver uma escolha explícita; persistir a escolha localmente. O contraste das superfícies vermelhas e das fotografias permanece independente dos tokens da página.
 
 A seção histórica é o momento central: palco com position sticky, quatro cenas e uma linha do tempo GSAP reversível vinculada à rolagem. Fotografias contemporâneas identificadas como tal; transições de máscara, aproximação da imagem, texto e ano em planos distintos. Anos selecionáveis e link para pular a história. Em movimento reduzido ou telas muito baixas, todos os capítulos aparecem na leitura vertical, sem conteúdo escondido.
+
+## Rolagem como narrativa
+
+Entre cultura e paisagem, uma composição geométrica autoral inspirada no tais se forma pela rolagem: fios verticais, cruzamento dos fios e motivos. O desenho é SVG, com etapas reversíveis ligadas diretamente à posição de scroll, sem reprodução automática. Explicar no próprio trecho que a arte não reproduz uma técnica ou motivo tradicional específico. Oferecer botões de etapas e continuação para a história.
+
+O scrubbing da história e da composição usa ligação direta, sem atraso de interpolação. A roda do mouse nessas sequências usa rolagem nativa; o toque permanece nativo em todo o site. Abas culturais ficam fixas no limite do cabeçalho e a coluna editorial da solidariedade acompanha a leitura no desktop. O progresso global mostra barra e porcentagem reais, inclusive quando a altura do documento muda; continua disponível com movimento reduzido.

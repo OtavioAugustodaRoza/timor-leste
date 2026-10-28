@@ -40,11 +40,17 @@ export default function WeaveJourney({ ready, reduced, scrollTo }: Props) {
       gsap.set(path, { strokeDasharray: length, strokeDashoffset: length })
     })
     gsap.set('.weave-motif', { opacity: 0 })
+    const updatePhase = (progress: number) => {
+      const next = Math.min(2, Math.floor(progress * 3))
+      if (previous.current !== next) { previous.current = next; setActive(next) }
+    }
     const timeline = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: {
       id: 'weave-journey', trigger: root.current,
       start: () => `top ${document.querySelector('header')?.offsetHeight ?? 72}`,
       end: () => `bottom ${(document.querySelector('header')?.offsetHeight ?? 72) + (root.current?.querySelector<HTMLElement>('.weave-stage')?.offsetHeight ?? 0)}`,
       scrub: true, invalidateOnRefresh: true,
+      onUpdate: self => updatePhase(self.progress),
+      onRefresh: self => updatePhase(self.progress),
     } })
     trigger.current = timeline.scrollTrigger ?? null
     timeline.to('.weave-warp path', { strokeDashoffset: 0, duration: .2, stagger: { amount: .15 } }, 0)
@@ -52,10 +58,6 @@ export default function WeaveJourney({ ready, reduced, scrollTo }: Props) {
       .to('.weave-motif', { opacity: 1, duration: .12, stagger: { amount: .15 } }, .73)
       .fromTo('.weave-frame', { rotationX: 7, rotationY: -5, scale: .91 }, { rotationX: -2, rotationY: 3, scale: 1, duration: 1 }, 0)
       .to('.weave-progress-fill', { scaleX: 1, duration: 1 }, 0)
-    timeline.eventCallback('onUpdate', () => {
-      const next = Math.min(2, Math.floor(timeline.progress() * 3))
-      if (previous.current !== next) { previous.current = next; setActive(next) }
-    })
     return () => { trigger.current = null }
   }, { scope: root, dependencies: [enabled], revertOnUpdate: true })
 
