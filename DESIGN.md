@@ -16,6 +16,6 @@ A seção histórica é o momento central: palco com position sticky, quatro cen
 
 ## Rolagem como narrativa
 
-Entre cultura e paisagem, uma composição geométrica autoral inspirada no tais se forma pela rolagem: fios verticais, cruzamento dos fios e motivos. O desenho é SVG, com etapas reversíveis ligadas diretamente à posição de scroll, sem reprodução automática. Explicar no próprio trecho que a arte não reproduz uma técnica ou motivo tradicional específico. Oferecer botões de etapas e continuação para a história.
+Entre cultura e paisagem, uma composição geométrica autoral inspirada no tais se forma pela rolagem: fios verticais, cruzamento dos fios e motivos. O desenho é SVG, com etapas reversíveis ligadas diretamente à posição de scroll, sem reprodução automática. Explicar no próprio trecho que a arte não reproduz uma técnica ou motivo tradicional específico. Oferecer botões de etapas; a história vem em seguida na rolagem.
 
 O scrubbing da história e da composição usa ligação direta, sem atraso de interpolação. A roda do mouse nessas sequências usa rolagem nativa; o toque permanece nativo em todo o site. Abas culturais ficam fixas no limite do cabeçalho e a coluna editorial da solidariedade acompanha a leitura no desktop. O progresso global mostra barra e porcentagem reais, inclusive quando a altura do documento muda; continua disponível com movimento reduzido.

@@ -48,8 +48,8 @@ body { transition: background-color .25s, color .25s; }
 .tiny-flag svg { color: #fff; }
 .hero-weave { background: var(--accent-surface); }
 .hero-location-line { background: var(--line); }
-.header-explore { border-color: var(--line); }
-.hero-scroll span { border-color: var(--muted); }
+
+
 .button-dark:hover { color: #fff5e7; }
 .footer-bottom { border-color: var(--line); }
 .chart-source { border-color: var(--muted); }
@@ -145,7 +145,7 @@ html[data-theme="dark"] .sources-list a:hover,html[data-theme="dark"] .text-link
 @media(max-width:800px) {
   :root { --header-height: 70px; --dock-height: calc(64px + env(safe-area-inset-bottom,0px)); --gutter: 26px; }
   .site-header { height: var(--header-height); padding-left: max(var(--gutter),env(safe-area-inset-left)); padding-right: max(var(--gutter),env(safe-area-inset-right)); gap: 14px; }
-  .header-explore { display: none; }
+
   .brand { margin-right: auto; font-size: 14px; }
   .brand small { font-size: 12px; }
   .theme-toggle { width: 44px; height: 44px; }
@@ -232,7 +232,7 @@ html[data-theme="dark"] .sources-list a:hover,html[data-theme="dark"] .text-link
   .hero h1 { order: 1; font-size: clamp(73px,20vw,104px); line-height: .9; }
   .hero-actions { order: 2; margin-top: 18px; gap: 20px; width: 100%; }
   .hero-actions .button { min-height: 50px; padding: 15px 17px; font-size: 12px; gap: 20px; }
-  .hero-scroll { font-size: 12px; min-height: 48px; gap: 8px; }
+
   .hero-visual { order: 3; margin-top: 25px; height: clamp(320px,43svh,440px); }
   .hero-description { order: 4; font-size: 16px; line-height: 1.75; max-width: none; margin-top: 24px; }
   .hero-note { order: 5; font-size: 11px; margin-top: 23px; gap: 11px; }
@@ -279,7 +279,7 @@ html[data-theme="dark"] .sources-list a:hover,html[data-theme="dark"] .text-link
   .solidarity-principles { row-gap: 15px; }
   .conflict-event { grid-template-columns: 59px 1fr; gap: 12px; }
   .closing p { font-size: 39px; }
-  .closing .button { font-size: 12px; min-height: 50px; }
+
   .sources { padding-top: 0; padding-bottom: 40px; }
   .sources summary h2 { font-size: 31px; }
   .footer-top>span { font-size: 10px; }
@@ -307,7 +307,7 @@ html[data-theme="dark"] .sources-list a:hover,html[data-theme="dark"] .text-link
   .site-header { gap: 7px; }
   .hero-actions { gap: 12px; }
   .hero-actions .button { font-size: 11px; padding: 15px 13px; gap: 12px; }
-  .hero-scroll { font-size: 11px; }
+
   .hero-location { font-size: 10px; }
   .hero-location-line { display: none; }
   .destination-name { font-size: 23px; }

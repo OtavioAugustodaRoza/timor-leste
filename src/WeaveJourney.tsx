@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowDown, ArrowRight } from 'lucide-react'
+import { ArrowDown } from 'lucide-react'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
@@ -70,7 +70,7 @@ export default function WeaveJourney({ ready, reduced, scrollTo }: Props) {
     <div className="weave-stage">
       <div className="weave-copy"><h2 id="weave-title">Fio a fio,<br/><i>a memória ganha forma.</i></h2><p>Um fio encontra outro. E, desse encontro, nasce uma trama de memórias.</p><span className="weave-instruction"><ArrowDown size={15}/>{enabled ? 'Role para tecer. Volte para desfazer.' : 'Histórias que se encontram.'}</span></div>
       <div className="weave-art"><svg className="weave-frame" viewBox="0 0 520 500" role="img" aria-label="Composição geométrica autoral de fios verticais e horizontais que formam um tecido com losangos" aria-describedby="weave-caption"><rect className="weave-base" x="20" y="12" width="480" height="476" rx="2"/><path className="weave-border" d="M35 28H485V472H35Z" fill="none"/><g className="weave-warp">{warp.map((x,index) => <path key={x} d={`M${x} 38V462`} fill="none" strokeWidth={index % 3 === 0 ? 3 : 1.2}/>)}</g><g className="weave-weft">{weft.map((y,index) => <path key={y} d={index % 2 === 0 ? `M44 ${y}H476` : `M476 ${y}H44`} fill="none" strokeWidth={index % 5 === 0 ? 6 : 3}/>)}</g><g className="weave-motifs">{diamonds.map(({x,y},index) => <g className="weave-motif" key={index}><path d={`M${x} ${y-26}l26 26-26 26-26-26Z`} fill="none" strokeWidth="4"/><path d={`M${x} ${y-9}l9 9-9 9-9-9Z`} stroke="none"/></g>)}</g><path className="weave-edge" d="M44 52H476M44 64H476M44 440H476M44 452H476" fill="none" strokeWidth="3"/></svg></div>
-      <div className="weave-footer">{enabled ? <><div className="weave-phase-controls" role="group" aria-label="Etapas da trama">{phases.map((phase,index) => <button key={phase.name} onClick={() => goTo(index)} aria-current={active === index ? 'step' : undefined}>{phase.name}</button>)}</div><div className="weave-progress"><div className="weave-progress-fill"/></div><p className="weave-phase-copy" aria-live="polite">{phases[active].description}</p></> : <p className="weave-phase-copy">Uma trama inteira, feita de histórias que se cruzam.</p>}<p id="weave-caption" className="weave-caption">Composição visual autoral inspirada no tais, sem reproduzir uma técnica ou um motivo tradicional específico.</p><a href="#historia" className="weave-continue">Continuar pela história <ArrowRight size={14}/></a></div>
+      <div className="weave-footer">{enabled ? <><div className="weave-phase-controls" role="group" aria-label="Etapas da trama">{phases.map((phase,index) => <button key={phase.name} onClick={() => goTo(index)} aria-current={active === index ? 'step' : undefined}>{phase.name}</button>)}</div><div className="weave-progress"><div className="weave-progress-fill"/></div><p className="weave-phase-copy" aria-live="polite">{phases[active].description}</p></> : <p className="weave-phase-copy">Uma trama inteira, feita de histórias que se cruzam.</p>}<p id="weave-caption" className="weave-caption">Composição visual autoral inspirada no tais, sem reproduzir uma técnica ou um motivo tradicional específico.</p></div>
     </div>
   </section>
 }
