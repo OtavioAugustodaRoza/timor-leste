@@ -73,8 +73,10 @@ html[data-theme="dark"] .sources-list a:hover,html[data-theme="dark"] .text-link
 .history-journey {
   position: relative; background: #17271f; color: var(--history-ink);
   --memory-accent: #e8bf73;
+  /* Total sticky journey height; the stage height is subtracted from the scroll range. */
+  --memory-scroll-height: 480svh;
 }
-.history-journey[data-scroll="true"] { height: 440svh; }
+.history-journey[data-scroll="true"] { height: var(--memory-scroll-height); }
 .memory-stage { position: relative; overflow: clip; isolation: isolate; }
 .history-journey[data-scroll="true"] .memory-stage {
   position: sticky; top: var(--header-height);
@@ -332,3 +334,7 @@ html[data-theme="dark"] .sources-list a:hover,html[data-theme="dark"] .text-link
 @media(prefers-reduced-motion:reduce) { html:not(.lenis) { scroll-behavior: auto; } }
 html[data-motion="reduced"] { scroll-behavior: auto!important; }
 .motion-reduced .memory-photo img,.motion-reduced .destination-image img,.motion-reduced .culture-image img { transform: none!important; }
+
+@media (max-width: 800px) {
+  .history-journey { --memory-scroll-height: 360svh; }
+}

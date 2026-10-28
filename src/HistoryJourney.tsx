@@ -14,6 +14,16 @@ const scenes = [
   { image: 'history-palace.webp', alt: 'Palácio do Governo, em Díli', caption: 'Uma voz que alcança a região' },
 ]
 
+// Timeline units: entry → four reading chapters → exit.
+const ENTRY = .4
+const CHAPTER = 1
+const EXIT = .4
+const TOTAL = ENTRY + history.length * CHAPTER + EXIT
+const MOTION = {
+  desktop: { shift: 28, scale: 1.16, drift: 4 },
+  mobile: { shift: 14, scale: 1.08, drift: 2 },
+}
+
 type Props = { ready: boolean, reduced: boolean, scrollTo: (position: number) => void }
 
 export default function HistoryJourney({ ready, reduced, scrollTo }: Props) {
@@ -21,14 +31,21 @@ export default function HistoryJourney({ ready, reduced, scrollTo }: Props) {
   const trigger = useRef<ScrollTrigger | null>(null)
   const activeRef = useRef(0)
   const [active, setActive] = useState(0)
+  const [mobile, setMobile] = useState(() => matchMedia('(max-width: 800px)').matches)
   const [shortViewport, setShortViewport] = useState(() => matchMedia('(max-height: 659px)').matches)
   const enhanced = ready && !reduced && !shortViewport
 
   useEffect(() => {
     const query = matchMedia('(max-height: 659px)')
     const update = () => setShortViewport(query.matches)
+    const widthQuery = matchMedia('(max-width: 800px)')
+    const updateWidth = () => setMobile(widthQuery.matches)
     query.addEventListener('change', update)
-    return () => query.removeEventListener('change', update)
+    widthQuery.addEventListener('change', updateWidth)
+    return () => {
+      query.removeEventListener('change', update)
+      widthQuery.removeEventListener('change', updateWidth)
+    }
   }, [])
 
   useGSAP(() => {
@@ -37,6 +54,10 @@ export default function HistoryJourney({ ready, reduced, scrollTo }: Props) {
     const panels = gsap.utils.toArray<HTMLElement>('.memory-scene', container)
     const updateActive = (index: number) => {
       if (activeRef.current !== index) { activeRef.current = index; setActive(index) }
+    }
+    const updateFromProgress = (progress: number) => {
+      const chapter = Math.floor((progress * TOTAL - ENTRY) / CHAPTER)
+      updateActive(Math.max(0, Math.min(history.length - 1, chapter)))
     }
     if (!enhanced) {
       const observer = new IntersectionObserver(entries => {
@@ -57,26 +78,39 @@ export default function HistoryJourney({ ready, reduced, scrollTo }: Props) {
           return `bottom ${(document.querySelector('header')?.getBoundingClientRect().height ?? 72) + stage.offsetHeight}`
         },
         scrub: true, invalidateOnRefresh: true,
-        onUpdate: self => updateActive(Math.min(3, Math.floor(self.progress * 4))),
-        onRefresh: self => updateActive(Math.min(3, Math.floor(self.progress * 4))),
+        onUpdate: self => updateFromProgress(self.progress),
+        onRefresh: self => updateFromProgress(self.progress),
       },
     })
     trigger.current = timeline.scrollTrigger ?? null
 
+    const motion = mobile ? MOTION.mobile : MOTION.desktop
+    const sceneLayer = container.querySelector('.memory-scenes')
+    // Entry is scrubbed too; no time-based playback or one-shot reveals.
+    timeline.addLabel('entry', 0)
+      .fromTo(sceneLayer, { y: motion.shift * .5, scale: .98, opacity: .35 },
+        { y: 0, scale: 1, opacity: 1, duration: ENTRY }, 0)
+      .addLabel('transformation', ENTRY)
+
     panels.forEach((panel, index) => {
+      const at = ENTRY + index * CHAPTER
       const photo = panel.querySelector('img')
       const copy = panel.querySelectorAll('.memory-date, h3, .memory-description, .memory-source')
-      timeline.fromTo(photo, { scale: 1.18, yPercent: 5 }, { scale: 1.04, yPercent: -4, duration: 1.15 }, Math.max(0, index - .25))
+      timeline.addLabel(`chapter-${index}`, at)
+      timeline.fromTo(photo, { scale: motion.scale, yPercent: motion.drift },
+        { scale: 1.02, yPercent: -motion.drift, duration: CHAPTER }, at)
       if (index > 0) {
-        timeline.to(panels[index - 1], { autoAlpha: 0, duration: .24 }, index - .2)
-        timeline.fromTo(panel, { autoAlpha: 0 }, { autoAlpha: 1, duration: .3 }, index - .18)
-        timeline.fromTo(panel.querySelector('.memory-photo'), { clipPath: 'inset(0 0 0 100%)' }, { clipPath: 'inset(0 0 0 0%)', duration: .55, ease: 'power2.inOut' }, index - .25)
-        timeline.fromTo(copy, { y: 28, opacity: 0 }, { y: 0, opacity: 1, duration: .3, stagger: .045, ease: 'power2.out' }, index - .12)
-        timeline.fromTo(panel.querySelector('.memory-year'), { yPercent: 18, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .5 }, index - .1)
+        timeline.to(panels[index - 1], { autoAlpha: 0, duration: .25 }, at - .2)
+        timeline.fromTo(panel, { autoAlpha: 0 }, { autoAlpha: 1, duration: .25 }, at - .2)
+        timeline.fromTo(copy, { y: motion.shift, opacity: 0 },
+          { y: 0, opacity: 1, duration: .3, stagger: .035 }, at - .15)
+        timeline.fromTo(panel.querySelector('.memory-year'), { yPercent: mobile ? 6 : 12, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: .35 }, at - .1)
       }
     })
-    // Four equal reading intervals, including a full interval for the final scene.
-    timeline.to('.memory-progress-fill', { scaleX: 1, duration: 4 }, 0)
+    timeline.addLabel('exit', TOTAL - EXIT)
+      .to(sceneLayer, { y: -motion.shift, scale: 1.015, opacity: .35, duration: EXIT }, 'exit')
+      .to(container.querySelector('.memory-progress-fill'), { scaleX: 1, duration: TOTAL }, 0)
     const refresh = () => ScrollTrigger.refresh()
     container.querySelectorAll('img').forEach(img => img.addEventListener('load', refresh, { once: true }))
     const timer = window.setTimeout(refresh, 100)
@@ -85,12 +119,12 @@ export default function HistoryJourney({ ready, reduced, scrollTo }: Props) {
       container.querySelectorAll('img').forEach(img => img.removeEventListener('load', refresh))
       trigger.current = null
     }
-  }, { scope: section, dependencies: [ready, enhanced], revertOnUpdate: true })
+  }, { scope: section, dependencies: [ready, enhanced, mobile], revertOnUpdate: true })
 
   const goTo = (index: number) => {
     const currentTrigger = trigger.current
     if (enhanced && currentTrigger) {
-      scrollTo(currentTrigger.start + ((index + .3) / 4) * (currentTrigger.end - currentTrigger.start))
+      scrollTo(currentTrigger.start + ((ENTRY + index * CHAPTER + .35) / TOTAL) * (currentTrigger.end - currentTrigger.start))
     } else {
       const panel = document.getElementById(`memory-${history[index].year}`)
       if (panel) scrollTo(panel.getBoundingClientRect().top + window.scrollY - 90)

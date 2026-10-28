@@ -35,3 +35,9 @@ Na seção “Fio a fio”, o scroll desenha uma trama original inspirada no tai
 Conteúdo consultado em 27/10/2026. Os valores do PIB são nominais, em bilhões de dólares correntes, com fonte Banco Mundial via FRED, e não representam uma série de crescimento real. A seção sobre Myanmar identifica opinião editorial e distingue tensões diplomáticas de conflito armado entre países.
 
 Fotografias: Turismo de Timor-Leste, Ministério do Turismo e Ambiente. A origem e os créditos estão acessíveis no próprio site. Fontes tipográficas: Cormorant Garamond e DM Sans, distribuídas por Fontsource com as licenças dos respectivos pacotes. Os padrões visuais são desenhos originais inspirados em ritmos de tecelagem.
+
+## Ajustar o scrubbing da história
+
+`src/HistoryJourney.tsx` organiza a timeline em `entry`, `transformation`, quatro `chapter-N` e `exit`. O progresso é reversível e acompanha a rolagem diretamente com `scrub: true`. `ENTRY`, `CHAPTER` e `EXIT` controlam a proporção de cada etapa; a navegação por ano usa os mesmos valores. `MOTION.desktop` e `MOTION.mobile` controlam deslocamento em pixels, escala inicial e paralaxe em porcentagem.
+
+Em `src/enhancements.css`, `--memory-scroll-height` define a duração em distância: `480svh` no desktop e `360svh` até 800px. A altura do palco é descontada desse percurso. Movimento reduzido e telas abaixo de 660px de altura mantêm todos os capítulos em leitura vertical. O contexto `useGSAP` reverte a timeline ao desmontar ou mudar o breakpoint; listeners e temporizadores têm limpeza explícita.
